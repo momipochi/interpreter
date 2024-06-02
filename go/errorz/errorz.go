@@ -1,0 +1,19 @@
+package errorz
+
+import "fmt"
+
+const ERROR_RED = "\033[0;31m"
+
+func CheckError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func Error(line int, msg string) {
+	report(line, "", msg)
+}
+
+func report(line int, where string, msg string) {
+	fmt.Printf("%s [line %d] Error%s:  %s", ERROR_RED, line, where, msg)
+}
