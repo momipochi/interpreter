@@ -15,8 +15,8 @@ const (
 	SLASH       TokenType = "/"
 	STAR        TokenType = "*"
 
-	BANG          TokenType = "BANG"
-	BANG_EQUAL    TokenType = "BANG_EQUAL"
+	BANG          TokenType = "!"
+	BANG_EQUAL    TokenType = "!="
 	EQUAL         TokenType = "="
 	EQUAL_EQUAL   TokenType = "=="
 	GREATER       TokenType = ">"

@@ -1,5 +1,10 @@
 package lox
 
+import (
+	"interpreter/errorz"
+	"interpreter/utils"
+)
+
 type Scanner struct {
 	source  string
 	tokens  []Token
@@ -30,36 +35,45 @@ func (s *Scanner) scanToken() {
 	switch r {
 	case '(':
 		s.addToken(LEFT_PAREN)
-		break
 	case ')':
 		s.addToken(RIGHT_PAREN)
-		break
 	case '{':
 		s.addToken(LEFT_BRACE)
-		break
 	case '}':
 		s.addToken(RIGHT_BRACE)
-		break
 	case ',':
 		s.addToken(COMMA)
-		break
 	case '.':
 		s.addToken(DOT)
-		break
 	case '-':
 		s.addToken(MINUS)
-		break
 	case '+':
 		s.addToken(PLUS)
-		break
 	case ';':
 		s.addToken(SEMICOLON)
-		break
 	case '*':
 		s.addToken(STAR)
-		break
-
+	case '!':
+		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, BANG_EQUAL, BANG)))
+	case '=':
+		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, EQUAL_EQUAL, EQUAL)))
+	case '<':
+		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, LESS_EQUAL, LESS)))
+	case '>':
+		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, GREATER_EQUAL, GREATER)))
+	default:
+		errorz.Error(s.line, "Unexpected character")
 	}
+}
+func (s *Scanner) match(c rune) bool {
+	if s.isAtEnd() {
+		return false
+	}
+	if rune(s.source[s.current]) != c {
+		return false
+	}
+	s.current++
+	return true
 }
 
 func (s *Scanner) advance() rune {
@@ -67,11 +81,11 @@ func (s *Scanner) advance() rune {
 	return rune(s.source[s.current-1])
 }
 
-func (s *Scanner) s.addToken(tokenType TokenType) {
+func (s *Scanner) addToken(tokenType TokenType) {
 
 }
 
-func (s *Scanner) s.addTokenLiteral(tokenType TokenType, literal any) {
+func (s *Scanner) addTokenLiteral(tokenType TokenType, literal any) {
 	input := s.source[s.start:s.current]
 	s.tokens = append(s.tokens, Token{tokenType: tokenType, literal: literal, lexeme: input, line: s.line})
 }
