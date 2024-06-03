@@ -54,17 +54,81 @@ func (s *Scanner) scanToken() {
 	case '*':
 		s.addToken(STAR)
 	case '!':
-		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, BANG_EQUAL, BANG)))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, BANG_EQUAL, BANG))
 	case '=':
-		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, EQUAL_EQUAL, EQUAL)))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, EQUAL_EQUAL, EQUAL))
 	case '<':
-		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, LESS_EQUAL, LESS)))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, LESS_EQUAL, LESS))
 	case '>':
-		s.addToken(TokenType(utils.TernararyHelper(func() bool { return s.match('=') }, GREATER_EQUAL, GREATER)))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, GREATER_EQUAL, GREATER))
+	case '/':
+		if s.match('/') {
+			for s.peek() != '\n' && s.isAtEnd() {
+				s.advance()
+			}
+		} else {
+			s.addToken(SLASH)
+		}
+	case ' ':
+	case '\r':
+	case '\t':
+	case '\n':
+		s.line++
+	case '"':
+		s.string()
 	default:
-		errorz.Error(s.line, "Unexpected character")
+		if utils.IsDigit(r) {
+			s.number()
+		} else {
+			errorz.Error(s.line, "Unexpected character.")
+		}
+
 	}
 }
+
+func (s *Scanner) number() {
+	for utils.IsDigit(s.peek()) {
+		s.advance()
+	}
+	if s.peek() == '.' && utils.IsDigit(s.peekNext()) {
+		s.advance()
+		for utils.IsDigit(s.peek()) {
+			s.advance()
+		}
+	}
+	s.addTokenLiteral(NUMBER, )
+}
+
+func (s *Scanner) peekNext() rune {
+	if s.current+1 >= len(s.source) {
+		return '0'
+	}
+	return rune(s.source[s.current+1])
+}
+
+func (s *Scanner) string() {
+	for s.peek() != '"' && !s.isAtEnd() {
+		if s.peek() == '\n' {
+			s.line++
+		}
+		s.advance()
+	}
+	if s.isAtEnd() {
+		errorz.Error(s.line, "Unterminated string.")
+		return
+	}
+	s.advance()
+	val := s.source[s.start+1 : s.current-1]
+	s.addTokenLiteral(STRING, val)
+}
+
+func (s *Scanner) peek() rune {
+	if s.isAtEnd() {
+		return '0'
+	}
+	return rune(s.source[s.current])
+}
+
 func (s *Scanner) match(c rune) bool {
 	if s.isAtEnd() {
 		return false
@@ -82,7 +146,7 @@ func (s *Scanner) advance() rune {
 }
 
 func (s *Scanner) addToken(tokenType TokenType) {
-
+	s.addTokenLiteral(tokenType, nil)
 }
 
 func (s *Scanner) addTokenLiteral(tokenType TokenType, literal any) {
