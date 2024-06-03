@@ -3,6 +3,7 @@ package lox
 import (
 	"interpreter/errorz"
 	"interpreter/utils"
+	"strconv"
 )
 
 type Scanner struct {
@@ -76,14 +77,26 @@ func (s *Scanner) scanToken() {
 		s.line++
 	case '"':
 		s.string()
+	case 'o':
+		if s.peek() == 'r' {
+			s.addToken(OR)
+		}
 	default:
 		if utils.IsDigit(r) {
 			s.number()
+		} else if utils.IsAlpha(r) {
+			s.identifier()
 		} else {
 			errorz.Error(s.line, "Unexpected character.")
 		}
-
 	}
+}
+
+func (s *Scanner) identifier() {
+	for utils.IsAlphaNumeric(s.peek()) {
+		s.advance()
+	}
+	s.addToken(IDENTIFIER)
 }
 
 func (s *Scanner) number() {
@@ -96,7 +109,9 @@ func (s *Scanner) number() {
 			s.advance()
 		}
 	}
-	s.addTokenLiteral(NUMBER, )
+	val, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
+	errorz.CheckError(err)
+	s.addTokenLiteral(NUMBER, val)
 }
 
 func (s *Scanner) peekNext() rune {

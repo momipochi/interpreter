@@ -13,3 +13,11 @@ func IsDigit(r rune) bool {
 	}
 	return false
 }
+
+func IsAlpha(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || r == '_'
+}
+
+func IsAlphaNumeric(r rune) bool {
+	return IsAlpha(r) || IsDigit(r)
+}
