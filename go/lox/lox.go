@@ -41,7 +41,7 @@ func (l *Lox) RunPrompt() {
 func run(source string) {
 	sc := NewScanner(source)
 	tokens := sc.scanTokens()
-	for v := range len(tokens) {
-		fmt.Println(v)
+	for ind, t := range tokens {
+		fmt.Printf("Token[%d]: %s \n", ind, t.toString())
 	}
 }

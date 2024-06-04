@@ -2,7 +2,10 @@ package errorz
 
 import "fmt"
 
-const ERROR_RED = "\033[0;31m"
+const (
+	ERROR_RED    = "\033[0;31m"
+	NORMAL_WHITE = "\u001b[37m"
+)
 
 func CheckError(err error) {
 	if err != nil {
@@ -15,5 +18,5 @@ func Error(line int, msg string) {
 }
 
 func report(line int, where string, msg string) {
-	fmt.Printf("%s [line %d] Error%s:  %s", ERROR_RED, line, where, msg)
+	fmt.Printf("%s [line %d] Error%s:  %s %s \n", ERROR_RED, line, where, msg, NORMAL_WHITE)
 }

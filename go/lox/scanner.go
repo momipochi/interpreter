@@ -115,7 +115,11 @@ func (s *Scanner) identifier() {
 	for utils.IsAlphaNumeric(s.peek()) {
 		s.advance()
 	}
-	s.addToken(IDENTIFIER)
+	val, ok := s.keywords[s.source[s.start:s.current]]
+	if ok {
+		val = IDENTIFIER
+	}
+	s.addToken(val)
 }
 
 func (s *Scanner) number() {
