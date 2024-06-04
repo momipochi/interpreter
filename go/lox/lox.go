@@ -39,5 +39,9 @@ func (l *Lox) RunPrompt() {
 }
 
 func run(source string) {
-	fmt.Println("Func Run to be implemented")
+	sc := NewScanner(source)
+	tokens := sc.scanTokens()
+	for v := range len(tokens) {
+		fmt.Println(v)
+	}
 }
