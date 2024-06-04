@@ -7,15 +7,34 @@ import (
 )
 
 type Scanner struct {
-	source  string
-	tokens  []Token
-	start   int
-	current int
-	line    int
+	source   string
+	tokens   []Token
+	start    int
+	current  int
+	line     int
+	keywords map[string]TokenType
 }
 
 func NewScanner(source string) Scanner {
-	return Scanner{source: source, tokens: []Token{}, start: 0, current: 0, line: 1}
+	keywords := map[string]TokenType{
+		"and":    AND,
+		"class":  CLASS,
+		"else":   ELSE,
+		"false":  FALSE,
+		"for":    FOR,
+		"fun":    FUN,
+		"if":     IF,
+		"nil":    NIL,
+		"or":     OR,
+		"print":  PRINT,
+		"return": RETURN,
+		"super":  SUPER,
+		"this":   THIS,
+		"true":   TRUE,
+		"var":    VAR,
+		"while":  WHILE,
+	}
+	return Scanner{source: source, tokens: []Token{}, start: 0, current: 0, line: 1, keywords: keywords}
 }
 
 func (s *Scanner) scanTokens() []Token {

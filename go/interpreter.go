@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"interpreter/lox"
+)
 
 func main() {
-	fmt.Println("Hello, world.")
+	l := lox.NewLox()
+	l.RunPrompt()
 }

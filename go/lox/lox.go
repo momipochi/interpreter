@@ -15,7 +15,7 @@ func NewLox() Lox {
 	return Lox{hadError: false}
 }
 
-func (l *Lox) runFile(path string) {
+func (l *Lox) RunFile(path string) {
 	data, err := os.ReadFile(path)
 	errorz.CheckError(err)
 	content := make([]byte, len(data))
@@ -26,7 +26,7 @@ func (l *Lox) runFile(path string) {
 	}
 }
 
-func (l *Lox) runPrompt() {
+func (l *Lox) RunPrompt() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Println(">")
