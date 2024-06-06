@@ -1,0 +1,3 @@
+var ten = 10
+var sum = ten+ten
+var str = "Hello world"

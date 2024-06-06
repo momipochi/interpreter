@@ -18,9 +18,7 @@ func NewLox() Lox {
 func (l *Lox) RunFile(path string) {
 	data, err := os.ReadFile(path)
 	errorz.CheckError(err)
-	content := make([]byte, len(data))
-	run(string(content))
-
+	run(string(data))
 	if l.hadError {
 		os.Exit(1)
 	}
