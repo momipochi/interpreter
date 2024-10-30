@@ -1,10 +1,5 @@
 package utils
 
-import (
-	"interpreter/expr"
-	"strings"
-)
-
 func TernararyHelper[T any](callback func() bool, happy T, sad T) T {
 	if callback() {
 		return happy
@@ -25,13 +20,4 @@ func IsAlpha(r rune) bool {
 
 func IsAlphaNumeric(r rune) bool {
 	return IsAlpha(r) || IsDigit(r)
-}
-
-func Parenthesize(name string, expr []expr.Expr[string]) string {
-	sb := strings.Builder{}
-	sb.WriteString("(")
-	sb.WriteString(name)
-	for _, val := range expr {
-		sb.WriteString(val.Accept())
-	}
 }
