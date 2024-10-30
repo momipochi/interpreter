@@ -1,9 +1,11 @@
 package expr
 
-type Visitor[T any] interface {
-	something() T
+type IVisitor[T any] interface {
+	Something() T
+	visitLiterlExpr(expr Literal) T
+	visitBinaryExpr(expr Binary) T
 }
 
-type Expr[T any] interface {
-	Accept() T
+type IExpr[T any] interface {
+	Accept(visitor IVisitor[T]) string
 }
