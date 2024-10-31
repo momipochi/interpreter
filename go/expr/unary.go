@@ -2,14 +2,16 @@ package expr
 
 import "interpreter/lox"
 
-type Unary[T any] struct {
+type Unary struct {
 	Operator lox.Token
-	Right    IExpr[T]
+	Right    IExpr[any]
 }
 
-func NewUnary[T any](op lox.Token, r IExpr[T]) Unary[T] {
-	return Unary[T]{Operator: op, Right: r}
+// Accept implements IExpr.
+func (u *Unary) Accept(visitor IVisitor[any]) any {
+	return visitor.VisitUnaryExpr(u)
 }
-func (u *Unary[any]) Accept(v IVisitor[any]) any {
-	return v.VisitUnaryExpr(u)
+
+func NewUnary(op lox.Token, r IExpr[any]) IExpr[any] {
+	return &Unary{Operator: op, Right: r}
 }

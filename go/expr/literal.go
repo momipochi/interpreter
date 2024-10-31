@@ -1,13 +1,13 @@
 package expr
 
 type Literal struct {
-	value any
+	Value any
 }
 
-func NewLiteral(val any) Literal {
-	return Literal{value: val}
-}
-
-func (l *Literal) Accept(v IVisitor[string]) string {
+func (l *Literal) Accept(v IVisitor[any]) any {
 	return v.VisitLiteralExpr(l)
+}
+
+func NewLiteral[T any](val T) IExpr[any] {
+	return &Literal{Value: val}
 }

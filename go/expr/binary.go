@@ -2,16 +2,17 @@ package expr
 
 import "interpreter/lox"
 
-type Binary[T any] struct {
-	Left     IExpr[T]
+type Binary struct {
+	Left     IExpr[any]
 	Operator lox.Token
-	Right    IExpr[T]
+	Right    IExpr[any]
 }
 
-func NewBinary[T any]() Binary[T] {
-	return Binary[T]{}
+// Accept implements IExpr.
+func (b *Binary) Accept(visitor IVisitor[any]) any {
+	return visitor.VisitBinaryExpr(b)
 }
 
-func (b *Binary[any]) Accept(v IVisitor[any]) any {
-	return v.VisitBinaryExpr(b)
+func NewBinary(l IExpr[any], o lox.Token, r IExpr[any]) IExpr[any] {
+	return &Binary{Left: l, Operator: o, Right: r}
 }

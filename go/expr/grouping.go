@@ -1,12 +1,14 @@
 package expr
 
-type Grouping[T any] struct {
-	Expression IExpr[T]
+type Grouping struct {
+	Expression IExpr[any]
 }
 
-func NewGrouping[T any](expr IExpr[T]) Grouping[T] {
-	return Grouping[T]{Expression: expr}
+// Accept implements IExpr.
+func (g *Grouping) Accept(visitor IVisitor[any]) any {
+	return visitor.VisitGroupingExpr(g)
 }
-func (g *Grouping[any]) Accept(v IVisitor[any]) any {
-	return v.VisitGroupingExpr(g)
+
+func NewGrouping(expr IExpr[any]) IExpr[any] {
+	return &Grouping{Expression: expr}
 }
