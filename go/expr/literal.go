@@ -1,11 +1,13 @@
 package expr
 
-type Literal struct{}
-
-func NewLiteral() Literal {
-	return Literal{}
+type Literal struct {
+	value any
 }
 
-func (l *Literal) Accept() {
+func NewLiteral(val any) Literal {
+	return Literal{value: val}
+}
 
+func (l *Literal) Accept(v IVisitor[string]) string {
+	return v.VisitLiteralExpr(l)
 }
