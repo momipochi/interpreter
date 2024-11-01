@@ -157,5 +157,10 @@ func (p *Parser) Parse() (expression expr.IExpr[any], err error) {
 			}
 		}
 	}()
-	return p.expression(), nil
+	res := p.expression()
+	return res, nil
+}
+
+func (p *Parser) PrintContent() {
+	fmt.Printf("Printing content \n %v", p.tokens)
 }

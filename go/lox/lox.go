@@ -42,6 +42,7 @@ func run(source string) {
 	sc := NewScanner(source)
 	tokens := sc.scanTokens()
 	parser := parser.NewParser(tokens)
+	parser.PrintContent()
 	expression, err := parser.Parse()
 	if err != nil {
 		return
