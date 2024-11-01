@@ -2,47 +2,48 @@ package lox
 
 import (
 	"interpreter/errorz"
+	"interpreter/loxToken"
 	"interpreter/utils"
 	"strconv"
 )
 
 type Scanner struct {
 	source   string
-	tokens   []Token
+	tokens   []loxToken.Token
 	start    int
 	current  int
 	line     int
-	keywords map[string]TokenType
+	keywords map[string]loxToken.TokenType
 }
 
 func NewScanner(source string) Scanner {
-	keywords := map[string]TokenType{
-		"and":    AND,
-		"class":  CLASS,
-		"else":   ELSE,
-		"false":  FALSE,
-		"for":    FOR,
-		"fun":    FUN,
-		"if":     IF,
-		"nil":    NIL,
-		"or":     OR,
-		"print":  PRINT,
-		"return": RETURN,
-		"super":  SUPER,
-		"this":   THIS,
-		"true":   TRUE,
-		"var":    VAR,
-		"while":  WHILE,
+	keywords := map[string]loxToken.TokenType{
+		"and":    loxToken.AND,
+		"class":  loxToken.CLASS,
+		"else":   loxToken.ELSE,
+		"false":  loxToken.FALSE,
+		"for":    loxToken.FOR,
+		"fun":    loxToken.FUN,
+		"if":     loxToken.IF,
+		"nil":    loxToken.NIL,
+		"or":     loxToken.OR,
+		"print":  loxToken.PRINT,
+		"return": loxToken.RETURN,
+		"super":  loxToken.SUPER,
+		"this":   loxToken.THIS,
+		"true":   loxToken.TRUE,
+		"var":    loxToken.VAR,
+		"while":  loxToken.WHILE,
 	}
-	return Scanner{source: source, tokens: []Token{}, start: 0, current: 0, line: 1, keywords: keywords}
+	return Scanner{source: source, tokens: []loxToken.Token{}, start: 0, current: 0, line: 1, keywords: keywords}
 }
 
-func (s *Scanner) scanTokens() []Token {
+func (s *Scanner) scanTokens() []loxToken.Token {
 	for !s.isAtEnd() {
 		s.start = s.current
 		s.scanToken()
 	}
-	s.tokens = append(s.tokens, NewToken(EOF, "", nil, s.line))
+	s.tokens = append(s.tokens, loxToken.NewToken(loxToken.EOF, "", nil, s.line))
 	return s.tokens
 }
 
@@ -54,40 +55,40 @@ func (s *Scanner) scanToken() {
 	r := s.advance()
 	switch r {
 	case '(':
-		s.addToken(LEFT_PAREN)
+		s.addToken(loxToken.LEFT_PAREN)
 	case ')':
-		s.addToken(RIGHT_PAREN)
+		s.addToken(loxToken.RIGHT_PAREN)
 	case '{':
-		s.addToken(LEFT_BRACE)
+		s.addToken(loxToken.LEFT_BRACE)
 	case '}':
-		s.addToken(RIGHT_BRACE)
+		s.addToken(loxToken.RIGHT_BRACE)
 	case ',':
-		s.addToken(COMMA)
+		s.addToken(loxToken.COMMA)
 	case '.':
-		s.addToken(DOT)
+		s.addToken(loxToken.DOT)
 	case '-':
-		s.addToken(MINUS)
+		s.addToken(loxToken.MINUS)
 	case '+':
-		s.addToken(PLUS)
+		s.addToken(loxToken.PLUS)
 	case ';':
-		s.addToken(SEMICOLON)
+		s.addToken(loxToken.SEMICOLON)
 	case '*':
-		s.addToken(STAR)
+		s.addToken(loxToken.STAR)
 	case '!':
-		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, BANG_EQUAL, BANG))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, loxToken.BANG_EQUAL, loxToken.BANG))
 	case '=':
-		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, EQUAL_EQUAL, EQUAL))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, loxToken.EQUAL_EQUAL, loxToken.EQUAL))
 	case '<':
-		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, LESS_EQUAL, LESS))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, loxToken.LESS_EQUAL, loxToken.LESS))
 	case '>':
-		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, GREATER_EQUAL, GREATER))
+		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, loxToken.GREATER_EQUAL, loxToken.GREATER))
 	case '/':
 		if s.match('/') {
 			for s.peek() != '\n' && s.isAtEnd() {
 				s.advance()
 			}
 		} else {
-			s.addToken(SLASH)
+			s.addToken(loxToken.SLASH)
 		}
 	case ' ':
 	case '\r':
@@ -98,7 +99,7 @@ func (s *Scanner) scanToken() {
 		s.string()
 	case 'o':
 		if s.peek() == 'r' {
-			s.addToken(OR)
+			s.addToken(loxToken.OR)
 		}
 	default:
 		if utils.IsDigit(r) {
@@ -117,7 +118,7 @@ func (s *Scanner) identifier() {
 	}
 	val, ok := s.keywords[s.source[s.start:s.current]]
 	if ok {
-		val = IDENTIFIER
+		val = loxToken.IDENTIFIER
 	}
 	s.addToken(val)
 }
@@ -134,7 +135,7 @@ func (s *Scanner) number() {
 	}
 	val, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
 	errorz.CheckError(err)
-	s.addTokenLiteral(NUMBER, val)
+	s.addTokenLiteral(loxToken.NUMBER, val)
 }
 
 func (s *Scanner) peekNext() rune {
@@ -157,7 +158,7 @@ func (s *Scanner) string() {
 	}
 	s.advance()
 	val := s.source[s.start+1 : s.current-1]
-	s.addTokenLiteral(STRING, val)
+	s.addTokenLiteral(loxToken.STRING, val)
 }
 
 func (s *Scanner) peek() rune {
@@ -183,11 +184,11 @@ func (s *Scanner) advance() rune {
 	return rune(s.source[s.current-1])
 }
 
-func (s *Scanner) addToken(tokenType TokenType) {
+func (s *Scanner) addToken(tokenType loxToken.TokenType) {
 	s.addTokenLiteral(tokenType, nil)
 }
 
-func (s *Scanner) addTokenLiteral(tokenType TokenType, literal any) {
+func (s *Scanner) addTokenLiteral(tokenType loxToken.TokenType, literal any) {
 	input := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, Token{Type: tokenType, Literal: literal, Lexeme: input, Line: s.line})
+	s.tokens = append(s.tokens, loxToken.Token{Type: tokenType, Literal: literal, Lexeme: input, Line: s.line})
 }

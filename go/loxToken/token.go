@@ -1,4 +1,4 @@
-package lox
+package loxToken
 
 import "fmt"
 
@@ -16,6 +16,6 @@ func NewTokenNoLiteral(tokenType TokenType, literal any, line int) Token {
 	return Token{Type: tokenType, Lexeme: string(tokenType), Literal: literal, Line: line}
 }
 
-func (t *Token) toString() string {
+func (t *Token) ToString() string {
 	return fmt.Sprintf("Type: %s Lexem: %s Literal: %s", t.Type, t.Lexeme, t.Literal)
 }

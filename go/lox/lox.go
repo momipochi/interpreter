@@ -3,7 +3,9 @@ package lox
 import (
 	"bufio"
 	"fmt"
+	astprinter "interpreter/astPrinter"
 	"interpreter/errorz"
+	"interpreter/parser"
 	"os"
 )
 
@@ -39,7 +41,11 @@ func (l *Lox) RunPrompt() {
 func run(source string) {
 	sc := NewScanner(source)
 	tokens := sc.scanTokens()
-	for ind, t := range tokens {
-		fmt.Printf("Token[%d]: %s \n", ind, t.toString())
+	parser := parser.NewParser(tokens)
+	expression, err := parser.Parse()
+	if err != nil {
+		return
 	}
+	printer := astprinter.NewPrinter()
+	printer.Print(&expression)
 }

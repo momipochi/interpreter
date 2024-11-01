@@ -1,4 +1,4 @@
-package lox
+package loxToken
 
 type TokenType string
 

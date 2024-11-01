@@ -1,39 +1,35 @@
 package parser
 
 import (
+	"fmt"
 	"interpreter/expr"
-	"interpreter/lox"
+	"interpreter/loxToken"
 )
 
 type Parser struct {
-	tokens  []lox.Token
+	tokens  []loxToken.Token
 	current int
 }
 
-func NewParser(t []lox.Token) *Parser {
+func NewParser(t []loxToken.Token) *Parser {
 	return &Parser{tokens: t}
 }
 
-func (p *Parser) expression() (expr.IExpr[any], error) {
+func (p *Parser) expression() expr.IExpr[any] {
 	return p.equality()
 }
-func (p *Parser) equality() (expr.IExpr[any], error) {
-	expresssion, err := p.comparison()
-	if err != nil {
-		return nil, err
-	}
-	for p.match(lox.BANG_EQUAL, lox.EQUAL_EQUAL) {
+func (p *Parser) equality() expr.IExpr[any] {
+	expresssion := p.comparison()
+
+	for p.match(loxToken.BANG_EQUAL, loxToken.EQUAL_EQUAL) {
 		operator := p.previous()
-		right, err := p.comparison()
-		if err != nil {
-			return nil, err
-		}
+		right := p.comparison()
 		expresssion = expr.NewBinary(expresssion, *operator, right)
 	}
-	return expresssion, nil
+	return expresssion
 }
 
-func (p *Parser) match(types ...lox.TokenType) bool {
+func (p *Parser) match(types ...loxToken.TokenType) bool {
 	for _, typ := range types {
 		if p.check(typ) {
 			p.advance()
@@ -43,109 +39,88 @@ func (p *Parser) match(types ...lox.TokenType) bool {
 	return false
 }
 
-func (p *Parser) check(typ lox.TokenType) bool {
+func (p *Parser) check(typ loxToken.TokenType) bool {
 	if p.isAtEnd() {
 		return false
 	}
 	return p.peek().Type == typ
 }
 
-func (p *Parser) advance() *lox.Token {
+func (p *Parser) advance() *loxToken.Token {
 	if !p.isAtEnd() {
 		p.current++
 	}
 	return p.previous()
 }
-func (p *Parser) isAtEnd() bool        { return p.peek().Type == lox.EOF }
-func (p *Parser) peek() *lox.Token     { return &p.tokens[p.current] }
-func (p *Parser) previous() *lox.Token { return &p.tokens[p.current-1] }
-func (p *Parser) comparison() (expr.IExpr[any], error) {
-	expression, err := p.term()
-	if err != nil {
-		return nil, err
-	}
-	for p.match(lox.GREATER, lox.GREATER_EQUAL, lox.LESS, lox.LESS_EQUAL) {
+func (p *Parser) isAtEnd() bool             { return p.peek().Type == loxToken.EOF }
+func (p *Parser) peek() *loxToken.Token     { return &p.tokens[p.current] }
+func (p *Parser) previous() *loxToken.Token { return &p.tokens[p.current-1] }
+func (p *Parser) comparison() expr.IExpr[any] {
+	expression := p.term()
+	for p.match(loxToken.GREATER, loxToken.GREATER_EQUAL, loxToken.LESS, loxToken.LESS_EQUAL) {
 		operator := p.previous()
-		right, err := p.term()
-		if err != nil {
-			return nil, err
-		}
+		right := p.term()
 		expression = expr.NewBinary(expression, *operator, right)
 	}
-	return expression, nil
+	return expression
 }
 
-func (p *Parser) term() (expr.IExpr[any], error) {
-	expression, err := p.factor()
-	if err != nil {
-		return nil, err
-	}
-	for p.match(lox.MINUS, lox.PLUS) {
+func (p *Parser) term() expr.IExpr[any] {
+	expression := p.factor()
+
+	for p.match(loxToken.MINUS, loxToken.PLUS) {
 		operator := p.previous()
-		right, err := p.factor()
-		if err != nil {
-			return nil, err
-		}
+		right := p.factor()
 		expression = expr.NewBinary(expression, *operator, right)
 	}
-	return expression, nil
+	return expression
 }
-func (p *Parser) factor() (expr.IExpr[any], error) {
-	expression, _ := p.unary()
-	for p.match(lox.SLASH, lox.STAR) {
+func (p *Parser) factor() expr.IExpr[any] {
+	expression := p.unary()
+	for p.match(loxToken.SLASH, loxToken.STAR) {
 		operator := p.previous()
-		right, err := p.unary()
-		if err == nil {
-			expression = expr.NewBinary(expression, *operator, right)
-
-		}
-		return nil, err
+		right := p.unary()
+		expression = expr.NewBinary(expression, *operator, right)
 	}
-	return expression, nil
+	return expression
 }
-func (p *Parser) unary() (expr.IExpr[any], error) {
-	if p.match(lox.BANG, lox.MINUS) {
+func (p *Parser) unary() expr.IExpr[any] {
+	if p.match(loxToken.BANG, loxToken.MINUS) {
 		operator := p.previous()
-		right, err := p.unary()
-		if err == nil {
-			return expr.NewUnary(*operator, right), nil
-		}
-		return nil, err
-
+		right := p.unary()
+		return expr.NewUnary(*operator, right)
 	}
 	return p.primary()
 }
-func (p *Parser) primary() (expr.IExpr[any], error) {
-	if p.match(lox.TRUE) {
-		return expr.NewLiteral(true), nil
+func (p *Parser) primary() expr.IExpr[any] {
+	if p.match(loxToken.TRUE) {
+		return expr.NewLiteral(true)
 	}
-	if p.match(lox.FALSE) {
-		return expr.NewLiteral(false), nil
+	if p.match(loxToken.FALSE) {
+		return expr.NewLiteral(false)
 	}
-	if p.match(lox.NIL) {
-		return expr.NewLiteral("nil"), nil
+	if p.match(loxToken.NIL) {
+		return expr.NewLiteral("nil")
 	}
-	if p.match(lox.NUMBER, lox.STRING) {
-		return expr.NewLiteral(p.previous().Literal), nil
+	if p.match(loxToken.NUMBER, loxToken.STRING) {
+		return expr.NewLiteral(p.previous().Literal)
 	}
-	if p.match(lox.LEFT_PAREN) {
-		expression, err := p.expression()
-		if err != nil {
-			return nil, err
-		}
-		p.consume(lox.RIGHT_PAREN, "Expect ')' after expression")
-		return expr.NewGrouping(expression), nil
+	if p.match(loxToken.LEFT_PAREN) {
+		expression := p.expression()
+		p.consume(loxToken.RIGHT_PAREN, "Expect ')' after expression")
+		return expr.NewGrouping(expression)
 	}
-	return nil, p.error(*p.peek(), "Expect expresion.")
+	return nil
 }
-func (p *Parser) consume(typ lox.TokenType, message string) (*lox.Token, error) {
+func (p *Parser) consume(typ loxToken.TokenType, message string) *loxToken.Token {
 	if p.check(typ) {
-		return p.advance(), nil
+		return p.advance()
 	}
-	return nil, p.error(*p.peek(), message)
+
+	panic(p.error(*p.peek(), message))
 }
 
-func (p *Parser) error(token lox.Token, message string) *ParseError {
+func (p *Parser) error(token loxToken.Token, message string) *ParseError {
 	ParsingError(token, message)
 	return NewParseError(token, message)
 }
@@ -153,28 +128,34 @@ func (p *Parser) error(token lox.Token, message string) *ParseError {
 func (p *Parser) synchronize() {
 	p.advance()
 	for !p.isAtEnd() {
-		if p.previous().Type == lox.SEMICOLON {
+		if p.previous().Type == loxToken.SEMICOLON {
 			return
 		}
 		switch p.peek().Type {
-		case lox.CLASS:
-		case lox.FUN:
-		case lox.VAR:
-		case lox.FOR:
-		case lox.IF:
-		case lox.WHILE:
-		case lox.PRINT:
-		case lox.RETURN:
+		case loxToken.CLASS:
+		case loxToken.FUN:
+		case loxToken.VAR:
+		case loxToken.FOR:
+		case loxToken.IF:
+		case loxToken.WHILE:
+		case loxToken.PRINT:
+		case loxToken.RETURN:
 			return
 		}
 		p.advance()
 	}
 }
 
-func (p *Parser) parse() (expr.IExpr[any], error) {
-	val, err := p.expression()
-	if err != nil {
-		return nil, err
-	}
-	return val, nil
+func (p *Parser) Parse() (expression expr.IExpr[any], err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if myErr, ok := r.(ParseError); ok {
+				res := myErr.Error()
+				err = fmt.Errorf("error code %s", res)
+			} else {
+				err = fmt.Errorf("unknown panic: %v", r)
+			}
+		}
+	}()
+	return p.expression(), nil
 }
