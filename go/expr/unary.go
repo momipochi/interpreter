@@ -12,6 +12,6 @@ func (u *Unary) Accept(visitor IVisitor[any]) any {
 	return visitor.VisitUnaryExpr(u)
 }
 
-func NewUnary(op lox.Token, r IExpr[any]) IExpr[any] {
-	return &Unary{Operator: op, Right: r}
+func NewUnary(operator lox.Token, expression IExpr[any]) IExpr[any] {
+	return &Unary{Operator: operator, Right: expression}
 }

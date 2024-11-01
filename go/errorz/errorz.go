@@ -14,9 +14,9 @@ func CheckError(err error) {
 }
 
 func Error(line int, msg string) {
-	report(line, "", msg)
+	Report(line, "", msg)
 }
 
-func report(line int, where string, msg string) {
+func Report(line int, where string, msg string) {
 	fmt.Printf("%s [line %d] Error%s:  %s %s \n", ERROR_RED, line, where, msg, NORMAL_WHITE)
 }

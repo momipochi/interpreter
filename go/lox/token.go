@@ -3,19 +3,19 @@ package lox
 import "fmt"
 
 type Token struct {
-	tokenType TokenType
-	Lexeme    string
-	literal   any
-	line      int
+	Type    TokenType
+	Lexeme  string
+	Literal any
+	Line    int
 }
 
 func NewToken(tokenType TokenType, lexeme string, literal any, line int) Token {
-	return Token{tokenType: tokenType, Lexeme: lexeme, literal: literal, line: line}
+	return Token{Type: tokenType, Lexeme: lexeme, Literal: literal, Line: line}
 }
 func NewTokenNoLiteral(tokenType TokenType, literal any, line int) Token {
-	return Token{tokenType: tokenType, Lexeme: string(tokenType), literal: literal, line: line}
+	return Token{Type: tokenType, Lexeme: string(tokenType), Literal: literal, Line: line}
 }
 
 func (t *Token) toString() string {
-	return fmt.Sprintf("Type: %s Lexem: %s Literal: %s", t.tokenType, t.Lexeme, t.literal)
+	return fmt.Sprintf("Type: %s Lexem: %s Literal: %s", t.Type, t.Lexeme, t.Literal)
 }

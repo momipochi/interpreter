@@ -189,5 +189,5 @@ func (s *Scanner) addToken(tokenType TokenType) {
 
 func (s *Scanner) addTokenLiteral(tokenType TokenType, literal any) {
 	input := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, Token{tokenType: tokenType, literal: literal, Lexeme: input, line: s.line})
+	s.tokens = append(s.tokens, Token{Type: tokenType, Literal: literal, Lexeme: input, Line: s.line})
 }
