@@ -46,10 +46,13 @@ func run(source string) {
 	// }
 	parser := parser.NewParser(tokens)
 	expression, err := parser.Parse()
+
 	if err != nil {
 		return
 	}
+
 	printer := astprinter.NewPrinter()
 	fmt.Println("Printing expressions...")
+
 	printer.Print(&expression)
 }

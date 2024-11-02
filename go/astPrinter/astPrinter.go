@@ -44,6 +44,7 @@ func (ap *AstPrinter) parenthesize(name string, expr ...expr.IExpr[any]) string 
 	return sb.String()
 }
 
-func (ap *AstPrinter) Print(expr *expr.IExpr[any]) any {
-	return (*expr).Accept(ap)
+func (ap *AstPrinter) Print(expr *expr.IExpr[any]) {
+
+	fmt.Println((*expr).Accept(ap))
 }

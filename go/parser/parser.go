@@ -16,7 +16,8 @@ func NewParser(t []loxToken.Token) *Parser {
 }
 
 func (p *Parser) expression() expr.IExpr[any] {
-	return p.equality()
+	res := p.equality()
+	return res
 }
 func (p *Parser) equality() expr.IExpr[any] {
 	expresssion := p.comparison()
