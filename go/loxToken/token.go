@@ -17,5 +17,5 @@ func NewTokenNoLiteral(tokenType TokenType, literal any, line int) Token {
 }
 
 func (t *Token) ToString() string {
-	return fmt.Sprintf("Type: %s Lexem: %s Literal: %s", t.Type, t.Lexeme, t.Literal)
+	return fmt.Sprintf("Type: %s Lexem: %s Literal: %v", t.Type, t.Lexeme, t.Literal)
 }

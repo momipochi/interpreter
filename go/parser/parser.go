@@ -25,17 +25,20 @@ func (p *Parser) equality() expr.IExpr[any] {
 		operator := p.previous()
 		right := p.comparison()
 		expresssion = expr.NewBinary(expresssion, *operator, right)
+
 	}
 	return expresssion
 }
 
 func (p *Parser) match(types ...loxToken.TokenType) bool {
+
 	for _, typ := range types {
 		if p.check(typ) {
 			p.advance()
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -43,20 +46,28 @@ func (p *Parser) check(typ loxToken.TokenType) bool {
 	if p.isAtEnd() {
 		return false
 	}
+
 	return p.peek().Type == typ
 }
 
 func (p *Parser) advance() *loxToken.Token {
+
 	if !p.isAtEnd() {
 		p.current++
 	}
 	return p.previous()
 }
-func (p *Parser) isAtEnd() bool             { return p.peek().Type == loxToken.EOF }
-func (p *Parser) peek() *loxToken.Token     { return &p.tokens[p.current] }
-func (p *Parser) previous() *loxToken.Token { return &p.tokens[p.current-1] }
+func (p *Parser) isAtEnd() bool { return p.peek().Type == loxToken.EOF }
+func (p *Parser) peek() *loxToken.Token {
+
+	return &p.tokens[p.current]
+}
+func (p *Parser) previous() *loxToken.Token {
+	return &p.tokens[p.current-1]
+}
 func (p *Parser) comparison() expr.IExpr[any] {
 	expression := p.term()
+
 	for p.match(loxToken.GREATER, loxToken.GREATER_EQUAL, loxToken.LESS, loxToken.LESS_EQUAL) {
 		operator := p.previous()
 		right := p.term()
@@ -149,6 +160,7 @@ func (p *Parser) synchronize() {
 func (p *Parser) Parse() (expression expr.IExpr[any], err error) {
 	defer func() {
 		if r := recover(); r != nil {
+			fmt.Println("Paniced! Recovering...")
 			if myErr, ok := r.(ParseError); ok {
 				res := myErr.Error()
 				err = fmt.Errorf("error code %s", res)
@@ -157,6 +169,7 @@ func (p *Parser) Parse() (expression expr.IExpr[any], err error) {
 			}
 		}
 	}()
+
 	res := p.expression()
 	return res, nil
 }

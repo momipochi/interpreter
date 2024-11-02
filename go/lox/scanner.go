@@ -117,7 +117,7 @@ func (s *Scanner) identifier() {
 		s.advance()
 	}
 	val, ok := s.keywords[s.source[s.start:s.current]]
-	if ok {
+	if !ok {
 		val = loxToken.IDENTIFIER
 	}
 	s.addToken(val)
