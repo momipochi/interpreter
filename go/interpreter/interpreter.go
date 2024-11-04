@@ -4,10 +4,18 @@ import (
 	"fmt"
 	"interpreter/expr"
 	"interpreter/loxToken"
+	"interpreter/parser"
+	"interpreter/utils"
 	"reflect"
 )
 
-type Interpreter struct{}
+type Interpreter struct {
+	HadRuntimeErrorCallback func()
+}
+
+func NewInterpreter(callback func()) *Interpreter {
+	return &Interpreter{HadRuntimeErrorCallback: callback}
+}
 
 func (i *Interpreter) Something() any {
 	return ""
@@ -25,10 +33,10 @@ func (i *Interpreter) VisitBinaryExpr(expr *expr.Binary) any {
 		return isEqual(left, right)
 	case loxToken.PLUS:
 		// Handle addition/concatenation
-		return i.handleAddition(left, right)
+		return i.handleAddition(left, right, expr.Operator)
 	case loxToken.MINUS, loxToken.SLASH, loxToken.STAR:
 		// Handle numeric operations
-		return i.handleNumericOperation(expr.Operator.Type, left, right)
+		return i.handleNumericOperation(expr.Operator, expr.Operator.Type, left, right)
 	default:
 		return nil
 	}
@@ -62,10 +70,10 @@ func (i *Interpreter) isTruthy(obj any) bool {
 	if val, ok := obj.(bool); ok {
 		return val
 	}
-	return true
+	return false
 }
 
-func (i *Interpreter) handleAddition(left, right any) any {
+func (i *Interpreter) handleAddition(left, right any, token loxToken.Token) any {
 	// Try numeric addition
 	if leftNum, rightNum, ok := i.getNumericOperands(left, right); ok {
 		return leftNum + rightNum
@@ -75,6 +83,7 @@ func (i *Interpreter) handleAddition(left, right any) any {
 	if res, ok := tryString(left, right); ok {
 		return res
 	}
+	panic_NAN_NASTR(token)
 	return nil
 }
 
@@ -86,7 +95,6 @@ func tryString(a, b any) (string, bool) {
 	}
 	if !(okL || okR) {
 		return "", false
-
 	}
 	leftFloat, okLF := toFloat64(a)
 	rightFloat, okRF := toFloat64(b)
@@ -96,16 +104,15 @@ func tryString(a, b any) (string, bool) {
 		return fmt.Sprint(left, rightFloat), true
 	} else if okR && okLF {
 		return fmt.Sprint(right, leftFloat), true
-
-	} else if okR && okRF {
+	} else {
 		return fmt.Sprint(right, rightFloat), true
 	}
 }
 
-func (i *Interpreter) handleNumericOperation(operator loxToken.TokenType, left, right any) any {
+func (i *Interpreter) handleNumericOperation(token loxToken.Token, operator loxToken.TokenType, left, right any) any {
 	leftNum, rightNum, ok := i.getNumericOperands(left, right)
 	if !ok {
-		return nil
+		panic_NAN_NASTR(token)
 	}
 
 	switch operator {
@@ -159,4 +166,38 @@ func toFloat64(v any) (float64, bool) {
 	default:
 		return 0, false
 	}
+}
+
+func panic_NAN_NASTR(token loxToken.Token) {
+	panic(parser.NewRunTimeError(token, "Operand not a number nor a string"))
+}
+
+func (i *Interpreter) Interpret(exp *expr.IExpr[any]) {
+	val := i.evaluate(*exp)
+	fmt.Println(stringify(val))
+
+	defer func() {
+		if r := recover(); r != nil {
+			if err, ok := r.(parser.RunTimeError); ok {
+				fmt.Println(err.Error())
+				i.HadRuntimeErrorCallback()
+			} else {
+				panic(r)
+			}
+		}
+	}()
+}
+
+func stringify(val any) any {
+	if val == nil {
+		return "nil"
+	}
+	if v, ok := toFloat64(val); ok {
+		text := fmt.Sprint(v)
+		if utils.StrEndsWith(text, ".0") {
+			text = text[:len(text)-2]
+		}
+		return text
+	}
+	return fmt.Sprintln(val)
 }

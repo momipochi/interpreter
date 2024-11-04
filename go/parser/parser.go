@@ -164,7 +164,10 @@ func (p *Parser) Parse() (expression expr.IExpr[any], err error) {
 			fmt.Println("Paniced! Recovering...")
 			if myErr, ok := r.(ParseError); ok {
 				res := myErr.Error()
-				err = fmt.Errorf("error code %s", res)
+				err = fmt.Errorf("[parse error] error code %s", res)
+			} else if myErr, ok := r.(RunTimeError); ok {
+				res := myErr.Error()
+				err = fmt.Errorf("[runtime error] error code %s", res)
 			} else {
 				err = fmt.Errorf("unknown panic: %v", r)
 			}

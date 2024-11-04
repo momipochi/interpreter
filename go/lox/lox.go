@@ -5,23 +5,31 @@ import (
 	"fmt"
 	astprinter "interpreter/astPrinter"
 	"interpreter/errorz"
+	"interpreter/interpreter"
 	"interpreter/parser"
 	"os"
 )
 
 type Lox struct {
-	hadError bool
+	hadError        bool
+	hadRuntimeError bool
+	interpreter     interpreter.Interpreter
 }
 
 func NewLox() Lox {
-	return Lox{hadError: false}
+	tmp := Lox{hadError: false, hadRuntimeError: false}
+	tmp.interpreter.HadRuntimeErrorCallback = tmp.hadRuntimeErrorCallback
+	return tmp
 }
 
 func (l *Lox) RunFile(path string) {
 	data, err := os.ReadFile(path)
 	errorz.CheckError(err)
-	run(string(data))
+	l.run(string(data))
 	if l.hadError {
+		os.Exit(1)
+	}
+	if l.hadRuntimeError {
 		os.Exit(1)
 	}
 }
@@ -32,13 +40,13 @@ func (l *Lox) RunPrompt() {
 		fmt.Println(">")
 		text, err := reader.ReadString('\n')
 		errorz.CheckError(err)
-		run(text)
+		l.run(text)
 		l.hadError = false
 	}
 
 }
 
-func run(source string) {
+func (l *Lox) run(source string) {
 	sc := NewScanner(source)
 	tokens := sc.scanTokens()
 	// for ind, t := range tokens {
@@ -52,7 +60,12 @@ func run(source string) {
 	}
 
 	printer := astprinter.NewPrinter()
+	l.interpreter.Interpret(&expression)
 	fmt.Println("Printing expressions...")
 
 	printer.Print(&expression)
+}
+
+func (l *Lox) hadRuntimeErrorCallback() {
+	l.hadRuntimeError = true
 }

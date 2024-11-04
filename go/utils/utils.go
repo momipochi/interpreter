@@ -21,3 +21,16 @@ func IsAlpha(r rune) bool {
 func IsAlphaNumeric(r rune) bool {
 	return IsAlpha(r) || IsDigit(r)
 }
+
+func StrEndsWith(str string, pattern string) bool {
+	if len(pattern) > len(str) {
+		return false
+	}
+	for i, j := len(str), len(pattern); i >= 0 && j >= 0; i-- {
+		if pattern[j] != str[i] {
+			return false
+		}
+		j--
+	}
+	return true
+}
