@@ -84,7 +84,7 @@ func (s *Scanner) scanToken() {
 		s.addToken(utils.TernararyHelper(func() bool { return s.match('=') }, loxToken.GREATER_EQUAL, loxToken.GREATER))
 	case '/':
 		if s.match('/') {
-			for s.peek() != '\n' && s.isAtEnd() {
+			for s.peek() != '\n' && !s.isAtEnd() {
 				s.advance()
 			}
 		} else {
@@ -163,7 +163,7 @@ func (s *Scanner) string() {
 
 func (s *Scanner) peek() rune {
 	if s.isAtEnd() {
-		return '0'
+		return '@'
 	}
 	return rune(s.source[s.current])
 }

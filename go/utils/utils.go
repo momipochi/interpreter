@@ -26,7 +26,7 @@ func StrEndsWith(str string, pattern string) bool {
 	if len(pattern) > len(str) {
 		return false
 	}
-	for i, j := len(str), len(pattern); i >= 0 && j >= 0; i-- {
+	for i, j := len(str)-1, len(pattern)-1; i >= 0 && j >= 0; i-- {
 		if pattern[j] != str[i] {
 			return false
 		}

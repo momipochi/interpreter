@@ -10,11 +10,12 @@ import (
 )
 
 type Interpreter struct {
-	HadRuntimeErrorCallback func()
+	hadError        *bool
+	hadRuntimeError *bool
 }
 
-func NewInterpreter(callback func()) *Interpreter {
-	return &Interpreter{HadRuntimeErrorCallback: callback}
+func NewInterpreter(hadErr, hadRunTimeErr *bool) *Interpreter {
+	return &Interpreter{hadError: hadErr, hadRuntimeError: hadRunTimeErr}
 }
 
 func (i *Interpreter) Something() any {
@@ -34,28 +35,30 @@ func (i *Interpreter) VisitBinaryExpr(expr *expr.Binary) any {
 	case loxToken.PLUS:
 		// Handle addition/concatenation
 		return i.handleAddition(left, right, expr.Operator)
-	case loxToken.MINUS, loxToken.SLASH, loxToken.STAR:
+	case loxToken.MINUS, loxToken.SLASH, loxToken.STAR, loxToken.GREATER, loxToken.GREATER_EQUAL, loxToken.LESS, loxToken.LESS_EQUAL:
+
 		// Handle numeric operations
 		return i.handleNumericOperation(expr.Operator, expr.Operator.Type, left, right)
 	default:
+		panic_NAN_NASTR(expr.Operator)
 		return nil
 	}
 }
 
 func (i *Interpreter) VisitGroupingExpr(expr *expr.Grouping) any {
-	return i.evaluate(expr)
+	return i.evaluate(expr.Expression)
 }
 func (i *Interpreter) VisitUnaryExpr(expr *expr.Unary) any {
 	right := i.evaluate(expr.Right)
 	switch expr.Operator.Type {
+	case loxToken.BANG:
+		return i.isTruthy(expr.Right)
 	case loxToken.MINUS:
 		if val, ok := toFloat64(right); ok {
 			return -val
 		}
-		return nil
-	case loxToken.BANG:
-		return i.isTruthy(expr.Right)
 	}
+	panic_NAN_NASTR(expr.Operator)
 	return nil
 }
 
@@ -180,7 +183,7 @@ func (i *Interpreter) Interpret(exp *expr.IExpr[any]) {
 		if r := recover(); r != nil {
 			if err, ok := r.(parser.RunTimeError); ok {
 				fmt.Println(err.Error())
-				i.HadRuntimeErrorCallback()
+				*i.hadRuntimeError = true
 			} else {
 				panic(r)
 			}

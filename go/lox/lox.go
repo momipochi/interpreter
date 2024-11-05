@@ -13,12 +13,12 @@ import (
 type Lox struct {
 	hadError        bool
 	hadRuntimeError bool
-	interpreter     interpreter.Interpreter
+	interpreter     *interpreter.Interpreter
 }
 
-func NewLox() Lox {
-	tmp := Lox{hadError: false, hadRuntimeError: false}
-	tmp.interpreter.HadRuntimeErrorCallback = tmp.hadRuntimeErrorCallback
+func NewLox() *Lox {
+	tmp := &Lox{hadError: false, hadRuntimeError: false}
+	tmp.interpreter = interpreter.NewInterpreter(&tmp.hadError, &tmp.hadRuntimeError)
 	return tmp
 }
 
@@ -60,12 +60,9 @@ func (l *Lox) run(source string) {
 	}
 
 	printer := astprinter.NewPrinter()
+	fmt.Println("\nInterpreted value:")
 	l.interpreter.Interpret(&expression)
-	fmt.Println("Printing expressions...")
+	fmt.Println("\nPrinting expressions...")
 
 	printer.Print(&expression)
-}
-
-func (l *Lox) hadRuntimeErrorCallback() {
-	l.hadRuntimeError = true
 }
