@@ -20,3 +20,6 @@ func Error(line int, msg string) {
 func Report(line int, where string, msg string) {
 	fmt.Printf("%s [line %d] Error%s:  %s %s \n", ERROR_RED, line, where, msg, NORMAL_WHITE)
 }
+func ReportToString(line int, where string, msg string) string {
+	return fmt.Sprintf("%s [line %d] Error%s:  %s %s \n", ERROR_RED, line, where, msg, NORMAL_WHITE)
+}

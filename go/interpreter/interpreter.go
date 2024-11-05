@@ -130,6 +130,9 @@ func (i *Interpreter) handleNumericOperation(token loxToken.Token, operator loxT
 	case loxToken.MINUS:
 		return leftNum - rightNum
 	case loxToken.SLASH:
+		if leftNum == 0 || rightNum == 0 {
+			panic_DIVISION_BY_ZERO(token)
+		}
 		return leftNum / rightNum
 	case loxToken.STAR:
 		return leftNum * rightNum
@@ -173,6 +176,9 @@ func toFloat64(v any) (float64, bool) {
 
 func panic_NAN_NASTR(token loxToken.Token) {
 	panic(parser.NewRunTimeError(token, "Operand not a number nor a string"))
+}
+func panic_DIVISION_BY_ZERO(token loxToken.Token) {
+	panic(parser.NewRunTimeError(token, "Cannot divide by zero"))
 }
 
 func (i *Interpreter) Interpret(exp *expr.IExpr[any]) {

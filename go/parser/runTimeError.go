@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"fmt"
+	"interpreter/errorz"
 	"interpreter/loxToken"
 )
 
@@ -11,7 +11,7 @@ type RunTimeError struct {
 }
 
 func (p *RunTimeError) Error() string {
-	return fmt.Sprintf("%v \n[line %d] %s", p.token, p.token.Line, p.message)
+	return errorz.ReportToString(p.token.Line, "", p.message)
 }
 
 func NewRunTimeError(token loxToken.Token, message string) *RunTimeError {
