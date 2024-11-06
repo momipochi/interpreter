@@ -62,7 +62,7 @@ func (l *Lox) run(source string) {
 	printer := astprinter.NewPrinter()
 	fmt.Println("\nInterpreted value:")
 	l.interpreter.Interpret(&expression)
-	fmt.Println("\nPrinting expressions...")
 
+	fmt.Println("\nExpression:")
 	printer.Print(&expression)
 }
